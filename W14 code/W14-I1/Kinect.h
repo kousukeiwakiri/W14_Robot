@@ -16,10 +16,10 @@
 
 #define TEMPLATESIZE_X	60
 #define TEMPLATESIZE_Y	120
-#define DEPTH_IMG_RANGE 300   //[mm]
+#define DEPTH_IMG_RANGE 500   //[mm]
 #define MATTING_X_RANGE 200 //pixel
 #define MATTING_Y_RANGE 100 //pixel
-#define USER_DISSIMILARITY 7500
+#define USER_DISSIMILARITY 7500 //相違度
 #define USER_PIXEL_RANGE 30000 //pixel
 //テンプレート画像PATH
 #define FRONT_TEMPLATE_PATH "./usertemplate/template1.jpg"	
@@ -38,7 +38,7 @@
 
 #define ROLL_PIXEL_THRESHOLD 60		//横回転の閾値 Robot.hに合わせる
 
-#define MAX_NULL_POINT_NUM	1800			//テンプレートの黒色閾値
+#define MAX_NULL_POINT_NUM	1800			//テンプレート更新判定  7200/4
 
 //ジェスチャー画像の深度範囲
 #define GESTURE_DEPTH_MIN_LIMIT	150
@@ -125,7 +125,7 @@ private:
 
 	//データ収集 テンプレートマッチングして、そのユーザを矩形で囲むetc
 	void DataCollection(void);
-	
+
 	IplImage *temp_img;
 	double temp_depth;	//テンプレート画像深度情報取得
 

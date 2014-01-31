@@ -23,7 +23,7 @@
 #define MAX_SONAR_NUM 8		//ロボットのソーナー数
 #define MIN_SONAR_RANGE 250	//ソナーのレンジ値
 #define SONAR_NEAR_MAX 300	//ソナーの応答距離	150~7000[mm]
-#define MAX_SPEED 800 //[mm/s]
+#define MAX_SPEED 1000 //[mm/s]
 
 
 struct UserData{

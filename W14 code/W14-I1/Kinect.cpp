@@ -165,7 +165,7 @@ void CKinect::UserDetection(void)
 //ユーザ登録
 void CKinect::UserSignin(void){
 	if(sceneMD(imageMD.XRes()/2,imageMD.YRes()/2)!=0){		//中心にユーザがいるとき
-		user_number = sceneMD(imageMD.XRes()/2,imageMD.YRes()/2);
+		
 		user_count ++;
 		init_user_count = 0;	
 	}else{
@@ -180,6 +180,7 @@ void CKinect::UserSignin(void){
 	if(user_count >15){		//中心にユーザがいた時
 		if(first_sign_in_flag == false){
 			first_sign_in_flag=true;
+			
 			Talk.TalkLanguage(TALK_HELLO);//こんにちは
 		}
 		user_count=0;
@@ -192,6 +193,7 @@ void CKinect::UserSignin(void){
 		int point_num = 0;
 		cvCopy(camera,gesture_img);
 		//その人の中心から150~400mmを切出すよ!
+		user_number = sceneMD(imageMD.XRes()/2,imageMD.YRes()/2);
 		for(int j=0 ; j< imageMD.YRes() ; ++j){
 			for(int i=0 ; i<imageMD.XRes() ; ++i){
 				if(depthMD(imageMD.XRes()/2,imageMD.YRes()/2) - GESTURE_DEPTH_MIN_LIMIT > depthMD(i,j) && 
@@ -300,7 +302,8 @@ void CKinect::UserAuthentication(){
 			user.center_x = (user.right_end + user.left_end)/2;
 			user.center_y = (user.upper_end + user.lower_end)/2;
 			//重心計算
-			int depth_sum=0;
+			user.center_depth = depthMD( user.center_x , user.center_y);
+			/*int depth_sum=0;
 			int depth_num=0;
 			for(int j=user.upper_end ; j<user.lower_end ; ++j){
 				for(int i=user.left_end ; i<user.right_end ; ++i){
@@ -318,19 +321,24 @@ void CKinect::UserAuthentication(){
 				user.center_depth = 0;
 			}else if(user.center_depth - DEPTH_IMG_RANGE < depth_sum/depth_num && depth_sum/depth_num < user.center_depth + DEPTH_IMG_RANGE){
 				user.center_depth = depth_sum/depth_num;
-			}
-			//テンプレート画像が黒色が閾値以上の時更新無し
+			}*/
+
+			//テンプレート画像更新判定
+			cvSetImageROI(depth_img , cvRect(user.center_x - TEMPLATESIZE_X / 2, user.center_y - TEMPLATESIZE_Y / 2, TEMPLATESIZE_X , TEMPLATESIZE_Y)); //中心のテンプレートの切出し
+			cvCopy(depth_img,update_temp_img);
+			cvResetImageROI(depth_img);
 			int null_point_num=0;
 			for(int i=0; i<update_temp_img->width ; i++){
 				for(int j=0 ; j<update_temp_img->height ; j++){
-					if(	(update_temp_img->imageData)[update_temp_img->widthStep * j + i * 3 ] == 0
-						&& (update_temp_img->imageData)[update_temp_img->widthStep * j + i * 3 +1] == 0
-						&& (update_temp_img->imageData)[update_temp_img->widthStep * j + i * 3 +2] == 0 ){
+					if(	depthMD(user.center_x - TEMPLATESIZE_X / 2 + i , user.center_y - TEMPLATESIZE_Y / 2 +j) > user.center_depth +  DEPTH_IMG_RANGE 
+						   || depthMD(user.center_x - TEMPLATESIZE_X / 2 + i , user.center_y - TEMPLATESIZE_Y / 2 +j) < 300){
 							null_point_num++;
 					}
 				}
 			}
-			if(null_point_num < MAX_NULL_POINT_NUM)	cvCopy(update_temp_img,temp_img);
+			if(null_point_num < MAX_NULL_POINT_NUM){
+				cvCopy(update_temp_img,temp_img);
+			}
 			lost_count = 0;
 		}else{
 			lost_count++;
@@ -406,6 +414,7 @@ void CKinect::DataCollection(void){
 	cvMinMaxLoc(dst_img, &min_val, NULL , &min_loc, NULL, NULL);					//マッチングの結果
 	cvResetImageROI(depth_img);														//ROI解放
 	double  m_dissimilarity =	min_val/(temp_img->width*temp_img->height);			//面積で割る
+	cout << "m_dissimilarity" <<m_dissimilarity<<endl;
 	if(m_dissimilarity < USER_DISSIMILARITY){
 		temp_user_flag = true;
 		cvSetImageROI(depth_img , cvRect(min_loc.x + roi_x, min_loc.y + roi_y, TEMPLATESIZE_X , TEMPLATESIZE_Y));
@@ -469,10 +478,10 @@ void CKinect::ExpectBackTemplateMatting(void){
 	double  m_dissimilarity =	min_val/(temp_img->width*temp_img->height);			//面積で割る
 	if(m_dissimilarity < USER_DISSIMILARITY){
 		temp_user_flag = true;
-		cvSetImageROI(depth_img , cvRect(min_loc.x + roi_x, min_loc.y + roi_y, TEMPLATESIZE_X , TEMPLATESIZE_Y));
-		cvCopy(depth_img,update_temp_img);
+		//cvSetImageROI(depth_img , cvRect(min_loc.x + roi_x, min_loc.y + roi_y, TEMPLATESIZE_X , TEMPLATESIZE_Y));
+		//cvCopy(depth_img,update_temp_img);
 		UserHightData(min_loc.x+TEMPLATESIZE_X/2+roi_x , min_loc.y+roi_y+TEMPLATESIZE_Y/2);
-		cvResetImageROI(depth_img);	
+		//cvResetImageROI(depth_img);	
 	}
 	cvShowImage("Template_img",temp_img);
 	cvReleaseImage(&dst_img);
@@ -651,7 +660,9 @@ void CKinect::UserReprobe(void){
 	}
 	cvReleaseImage(&copy_userimg);
 	//本人確定 
-	if(original!=-1){
+	if(original!=-1 && userInfo[original].lower_end - userInfo[original].upper_end > imageMD.YRes()/4 
+		&& userInfo[original].right_end - userInfo[original].upper_end > imageMD.YRes()/16 )
+	{
 		user=userInfo[original];
 		user.center_depth = depthMD(user.center_x,user.center_y);
 		cvCopy(temp_img_front,temp_img);

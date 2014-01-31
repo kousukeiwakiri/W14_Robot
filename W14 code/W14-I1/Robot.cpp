@@ -101,7 +101,7 @@ void CRobot::RobotTalk(void){
 	}else {
 		robot_back_talk_flag=false;
 	}
-	if(MAX_LENGHT_HUMAN_ROBOT-1000 < user_data.center_depth){	//ユーザが遠いとき
+	if(MAX_LENGHT_HUMAN_ROBOT < user_data.center_depth){	//ユーザが遠いとき
 		if(robot_quick_talk_flag==false){
 			Talk.TalkLanguage(TALK_QUICK);
 			robot_quick_talk_flag=true;
