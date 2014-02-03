@@ -109,6 +109,7 @@ BOOL CW14I1Dlg::OnInitDialog()
 	AllocConsole();					//コンソールウィンドウ出力設定
 	freopen("con","w", stdout);
 	return TRUE;  // フォーカスをコントロールに設定した場合を除き、TRUE を返します。
+	face.CreateFase(START_FACE);
 }
 
 void CW14I1Dlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -198,9 +199,12 @@ void CW14I1Dlg::OnTimer(UINT_PTR nIDEvent)
 	case KINECT_TIMER_ID:
 		if(kinect.byebye_flag == false){
 			kinect.Main();
-
-		}else if(kinect.byebye_flag ==true){
+			if(robot.emergency_stop_flag==false){
+				face.CreateFase(kinect.face_num);
+			}
+		}else if(kinect.byebye_flag == true){
 			robot.Close();
+			face.CreateFase(BYEBYE_FACE);
 		}
 		break;
 	case ROBOT_TIMER_ID:
@@ -208,7 +212,7 @@ void CW14I1Dlg::OnTimer(UINT_PTR nIDEvent)
 		if(robot.connect_flag == true){ 
 			robot.Sonar();
 			robot.EmergencyStop();
-			if(kinect.main_sign_in_flag==true ){
+			if(kinect.main_sign_in_flag == true ){
 				if(kinect.user.center_x!=0 && kinect.lost_flag==false && robot.emergency_stop_flag==false){					//ユーザが検出できてれば
 					robot.user_data.center_x = kinect.user.center_x;
 					robot.user_data.center_depth = kinect.user.center_depth;
@@ -226,6 +230,9 @@ void CW14I1Dlg::OnTimer(UINT_PTR nIDEvent)
 					kinect.kalman_range_diff = kalman.range_diff;
 					kinect.user_reprobe_flag = false;
 
+				}else if(robot.emergency_stop_flag == true){
+					face.CreateFase(EMERGENCY_FACE);
+					robot.myRobot->stop();
 				}else{
 					robot.myRobot->stop();
 				}

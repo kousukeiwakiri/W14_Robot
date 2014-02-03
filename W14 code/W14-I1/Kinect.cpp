@@ -31,6 +31,7 @@ CKinect::CKinect(void)
 	start_count=0;
 	camera_prediction_pos_d = 0;
 	user_reprobe_flag =false;
+	face_num = START_FACE;
 }
 
 
@@ -106,7 +107,7 @@ void CKinect::Main(void)
 	UserDetection();		//ユーザを切出す
 	//ユーザ登録
 	if(main_sign_in_flag==false){
-		UserSignin();		//マウスが押されたら登録フェーズへ(登録されていないとき)
+		UserSignin();		//登録フェーズへ(登録されていないとき)
 	}
 	if(first_sign_in_flag==true){		
 		cvCircle(user_img,cv::Point(600,30),8,cv::Scalar(200,200,200),1,8,0);
@@ -173,24 +174,26 @@ void CKinect::UserSignin(void){
 			init_user_count++;
 		}else{
 			first_sign_in_flag = false;
+			face_num = START_FACE;
 			user_number = 0;
 			init_user_count = 0;
 		}
 	}
 	if(user_count >15){		//中心にユーザがいた時
 		if(first_sign_in_flag == false){
-			first_sign_in_flag=true;
+			first_sign_in_flag = true;
 			
 			Talk.TalkLanguage(TALK_HELLO);//こんにちは
+			face_num = HELLO_FACE;
 		}
-		user_count=0;
+		user_count=0; 
 	}
 
-	if(first_sign_in_flag== true){
+	if(first_sign_in_flag == true){
 		//捜索画像の生成をするよ!
-		int point_x_sum =0;
-		int point_y_sum =0;
-		int point_num = 0;
+		int point_x_sum =0 ;
+		int point_y_sum =0 ;
+		int point_num = 0 ;
 		cvCopy(camera,gesture_img);
 		//その人の中心から150~400mmを切出すよ!
 		user_number = sceneMD(imageMD.XRes()/2,imageMD.YRes()/2);
@@ -198,11 +201,13 @@ void CKinect::UserSignin(void){
 			for(int i=0 ; i<imageMD.XRes() ; ++i){
 				if(depthMD(imageMD.XRes()/2,imageMD.YRes()/2) - GESTURE_DEPTH_MIN_LIMIT > depthMD(i,j) && 
 					depthMD(i,j) > depthMD(imageMD.XRes()/2,imageMD.YRes()/2) - GESTURE_DEPTH_MAX_LIMIT &&   
-					imageMD.YRes()/2 +imageMD.YRes()/4 > j && sceneMD(i,j)==user_number){
+					imageMD.YRes()/2 +imageMD.YRes()/4 > j && sceneMD(i,j)==user_number)
+				{
 						point_x_sum+= i ;
 						point_y_sum+= j ;
 						point_num++;
-				}else{
+				}else
+				{
 					(gesture_img->imageData)[gesture_img->widthStep * j + i * 3 ] = 0;
 					(gesture_img->imageData)[gesture_img->widthStep * j + i * 3 +1] = 0;
 					(gesture_img->imageData)[gesture_img->widthStep * j + i * 3 +2] = 0;
@@ -239,6 +244,7 @@ void CKinect::UserSignin(void){
 			if((upper_count > 5 && lower_count>5) || upper_count > 10 || lower_count>10){
 				main_sign_in_flag=true;
 				Talk.TalkLanguage(TALK_START);
+				face_num = TRACKING_FACE;
 			}
 			cout<<"upper="<<upper_count<<" lower="<<lower_count<<endl;
 		}else{ 
@@ -330,7 +336,7 @@ void CKinect::UserAuthentication(){
 			int null_point_num=0;
 			for(int i=0; i<update_temp_img->width ; i++){
 				for(int j=0 ; j<update_temp_img->height ; j++){
-					if(	depthMD(user.center_x - TEMPLATESIZE_X / 2 + i , user.center_y - TEMPLATESIZE_Y / 2 +j) > user.center_depth +  DEPTH_IMG_RANGE 
+					if(	depthMD(user.center_x - TEMPLATESIZE_X / 2 + i , user.center_y - TEMPLATESIZE_Y / 2 + j) > user.center_depth +  DEPTH_IMG_RANGE 
 						   || depthMD(user.center_x - TEMPLATESIZE_X / 2 + i , user.center_y - TEMPLATESIZE_Y / 2 +j) < 300){
 							null_point_num++;
 					}
@@ -349,6 +355,7 @@ void CKinect::UserAuthentication(){
 	if(lost_count > MAX_LOST_COUNT){
 		lost_flag=true;
 		Talk.TalkLanguage(TALK_LOST);
+		face_num = LOST_FACE;
 	}
 }
 
@@ -392,6 +399,7 @@ void CKinect::MakeDepthImage(void){
 	}
 
 }
+/*
 //本人かどうかのデータ収集
 void CKinect::DataCollection(void){
 	temp_user_flag=false;
@@ -433,7 +441,7 @@ void CKinect::DataCollection(void){
 	double kalman_pixel_rane_diff = (kalman_range_diff+200) / (0.001736 * camera_prediction_pos_d);
 	cvRectangle(depth_img,cvPoint(kalman_pixel_x - kalman_pixel_rane_diff,roi_y),cvPoint(kalman_pixel_x + kalman_pixel_rane_diff , roi_y+MATTING_Y_RANGE*2),CV_RGB(255,255,0),5,8,0);
 
-}
+}*/
 
 //背景を抜いたテンプレートマッチング
 void CKinect::ExpectBackTemplateMatting(void){
@@ -637,7 +645,7 @@ void CKinect::UserReprobe(void){
 	}
 	int original=-1;
 	double max_same=0;			//類似度が一番高いのは
-	IplImage *temp_img_front,*dst_img;
+	IplImage *temp_img_front = 0,*dst_img = 0;
 	double  max_val;		// 最大の結果のポインタを入れる
 	CvPoint max_loc;		// 最大の結果の座標を入れる
 	temp_img_front = cvLoadImage(FRONT_TEMPLATE_PATH, CV_LOAD_IMAGE_COLOR);	// テンプレ画像をロード
@@ -658,7 +666,6 @@ void CKinect::UserReprobe(void){
 			}
 		}
 	}
-	cvReleaseImage(&copy_userimg);
 	//本人確定 
 	if(original!=-1 && userInfo[original].lower_end - userInfo[original].upper_end > imageMD.YRes()/4 
 		&& userInfo[original].right_end - userInfo[original].upper_end > imageMD.YRes()/16 )
@@ -667,10 +674,15 @@ void CKinect::UserReprobe(void){
 		user.center_depth = depthMD(user.center_x,user.center_y);
 		cvCopy(temp_img_front,temp_img);
 		Talk.TalkLanguage(TALK_REDIS);
+		face_num = TRACKING_FACE;
 		lost_count=0;
 		lost_flag = false;
 		user_reprobe_flag = true;
 	}
+	cvReleaseImage(&copy_userimg);
+	cvReleaseImage(&temp_img_front);
+	cvReleaseImage(&dst_img);
+
 }
 
 //ロボットの処理画面
@@ -754,6 +766,7 @@ void CKinect::ByeByeSign(void){
 			if((right_count > 5 && left_count>5) || right_count > 15 || left_count>15){
 				byebye_flag=true;
 				Talk.TalkLanguage(TALK_BYE);
+				face_num = BYEBYE_FACE;
 			}
 			cout<<"right="<<right_count<<" left="<<left_count<<endl;
 		}else{ 

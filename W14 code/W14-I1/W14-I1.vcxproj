@@ -106,6 +106,7 @@
     <None Include="変更点.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Face.h" />
     <ClInclude Include="Kalman.h" />
     <ClInclude Include="Kinect.h" />
     <ClInclude Include="Resource.h" />
@@ -117,6 +118,7 @@
     <ClInclude Include="W14-I1Dlg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Face.cpp" />
     <ClCompile Include="Kalman.cpp" />
     <ClCompile Include="Kinect.cpp" />
     <ClCompile Include="Robot.cpp" />

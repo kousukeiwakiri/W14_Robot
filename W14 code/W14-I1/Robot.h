@@ -12,7 +12,7 @@
 #include <time.h>
 
 //ロボット
-#define ROBOT_SPEED_P 0.4 //[mm^2/s] 1mm離れてたら0.1mm/s 1000mm離れてたら100mm/s
+#define ROBOT_SPEED_P 0.6 //[mm^2/s] 1mm離れてたら0.1mm/s 1000mm離れてたら100mm/s
 #define ROBOT_ROLL_SPEED_P 0.4 //回転の速度[mm/s]
 #define ROBOT_BACK_SPEED 30	//[mm/s] 後退は一定
 #define ROLL_PIXEL_THRESHOLD 100		//横回転の閾値 kinect.hに合わせる

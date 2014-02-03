@@ -7,6 +7,7 @@
 #include "Kinect.h"
 #include "Robot.h"
 #include "Kalman.h"
+#include "Face.h"
 
 #define ROBOT_TIMER_ID 10
 #define ROBOT_TIMER_MS 100
@@ -42,7 +43,7 @@ private:
 	CKinect kinect;
 	CRobot robot;
 	CKalman kalman;
-
+	CFace face;
 public:
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
@@ -57,5 +58,6 @@ public:
 	clock_t  now_time ,delta_t;
 
 	int count;//デバック用
+
 
 };

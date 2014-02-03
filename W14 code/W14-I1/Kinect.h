@@ -43,6 +43,17 @@
 //ジェスチャー画像の深度範囲
 #define GESTURE_DEPTH_MIN_LIMIT	150
 #define GESTURE_DEPTH_MAX_LIMIT 500
+
+
+//顔用パラメータ
+#define START_FACE 1
+#define HELLO_FACE 2
+#define TRACKING_FACE 3
+#define LOST_FACE 4
+#define BYEBYE_FACE 5
+#define EMERGENCY_FACE 6
+
+
 //マウスの構造体
 struct Mouse{
 	bool flag;
@@ -82,6 +93,9 @@ public:
 	double camera_prediction_pos_x , camera_prediction_pos_d;	//予想の値
 	bool user_reprobe_flag;
 	double kalman_range_diff;
+
+	//顔用パラメータ
+	int face_num;
 
 private:
 	void CheckOpenNIError(XnStatus status);
