@@ -9,6 +9,7 @@
 #define LOST_FACE 4
 #define BYEBYE_FACE 5
 #define EMERGENCY_FACE 6
+#define BACK_FACE 7
 class CFace
 {
 private:

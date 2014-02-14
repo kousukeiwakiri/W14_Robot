@@ -199,7 +199,7 @@ void CW14I1Dlg::OnTimer(UINT_PTR nIDEvent)
 	case KINECT_TIMER_ID:
 		if(kinect.byebye_flag == false){
 			kinect.Main();
-			if(robot.emergency_stop_flag==false){
+			if(robot.emergency_stop_flag==false && robot.robot_backflag == false){
 				face.CreateFase(kinect.face_num);
 			}
 		}else if(kinect.byebye_flag == true){
@@ -216,7 +216,7 @@ void CW14I1Dlg::OnTimer(UINT_PTR nIDEvent)
 				if(kinect.user.center_x!=0 && kinect.lost_flag==false && robot.emergency_stop_flag==false){					//ƒ†[ƒU‚ªŒŸo‚Å‚«‚Ä‚ê‚Î
 					robot.user_data.center_x = kinect.user.center_x;
 					robot.user_data.center_depth = kinect.user.center_depth;
-					//robot.Main();
+					robot.Main();
 
 					kalman.robot_x = robot.myRobot->getX();
 					kalman.robot_y = robot.myRobot->getY();
@@ -230,6 +230,9 @@ void CW14I1Dlg::OnTimer(UINT_PTR nIDEvent)
 					kinect.kalman_range_diff = kalman.range_diff;
 					kinect.user_reprobe_flag = false;
 
+					if(robot.robot_backflag == true){
+						face.CreateFase(BACK_FACE);
+					}
 				}else if(robot.emergency_stop_flag == true){
 					face.CreateFase(EMERGENCY_FACE);
 					robot.myRobot->stop();

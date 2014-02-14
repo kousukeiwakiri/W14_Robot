@@ -18,11 +18,11 @@
 #define ROLL_PIXEL_THRESHOLD 100		//横回転の閾値 kinect.hに合わせる
 #define IMAGE_WIDTH_SIZE 640	//画面の幅　kinectの設定に合わせる
 #define LENGHT_HUMAN_ROBOT 975	//人間とロボットの適正距離
-#define LENGHT_HUMAN_ROBOT_THRESHOLD 100	//縦方向への閾値 (発散しないように)
+#define LENGHT_HUMAN_ROBOT_THRESHOLD 200	//縦方向への閾値 (発散しないように)
 #define MAX_LENGHT_HUMAN_ROBOT 2500			//遠くへ暴走しないように
 #define MAX_SONAR_NUM 8		//ロボットのソーナー数
 #define MIN_SONAR_RANGE 250	//ソナーのレンジ値
-#define SONAR_NEAR_MAX 300	//ソナーの応答距離	150~7000[mm]
+#define SONAR_NEAR_MAX 500	//ソナーの応答距離	150~7000[mm]
 #define MAX_SPEED 1000 //[mm/s]
 
 
@@ -54,6 +54,8 @@ public:
 	void EmergencyStop();
 	//緊急停止
 	bool emergency_stop_flag;
+
+	bool robot_backflag;
 
 private:
 	void Move();	//ロボットの移動

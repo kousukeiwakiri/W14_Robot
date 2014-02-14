@@ -11,6 +11,7 @@ CRobot::CRobot(void)
 	robot_back_talk_flag=false;
 	robot_quick_talk_flag=false;
 	emergency_stop_flag=false; 
+	robot_backflag = false;
 }
 
 
@@ -56,12 +57,13 @@ void CRobot::Main(void){
 			}else{
 				myRobot->setVel2(MAX_SPEED , MAX_SPEED);	
 			}
-
+			robot_backflag = false;
 		}else if(user_data.center_depth < LENGHT_HUMAN_ROBOT-LENGHT_HUMAN_ROBOT_THRESHOLD){		//Œã‘Ş”ÍˆÍ‚É“ü‚Á‚Ä‚¢‚é‚©
 			myRobot->setVel2( -ROBOT_BACK_SPEED, -ROBOT_BACK_SPEED);
+			robot_backflag = true;
 		}else{
 			myRobot->stop();
-
+			robot_backflag = false;
 		}
 	}else{																	///////////////’†S‚Él‚ª‚¢‚È‚¢‚Æ‚«/////////////
 		mv_forward = user_data.center_depth-LENGHT_HUMAN_ROBOT;												

@@ -19,7 +19,7 @@
 #define DEPTH_IMG_RANGE 500   //[mm]
 #define MATTING_X_RANGE 200 //pixel
 #define MATTING_Y_RANGE 100 //pixel
-#define USER_DISSIMILARITY 7500 //相違度
+#define USER_DISSIMILARITY 3500 //相違度
 #define USER_PIXEL_RANGE 30000 //pixel
 //テンプレート画像PATH
 #define FRONT_TEMPLATE_PATH "./usertemplate/template1.jpg"	
@@ -34,7 +34,7 @@
 #define MAX_LOST_COUNT 15
 #define MAX_USER_NUM 16					//15人まで登録可能(配列のため+1で設定)
 //ZNCCマッチング閾値
-#define TEMPLATE_SIMILARITY 0.3
+#define TEMPLATE_SIMILARITY 0.35
 
 #define ROLL_PIXEL_THRESHOLD 60		//横回転の閾値 Robot.hに合わせる
 

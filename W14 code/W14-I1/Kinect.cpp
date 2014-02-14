@@ -136,7 +136,7 @@ void CKinect::Main(void)
 	cvLine(user_img,cvPoint(0 , imageMD.YRes()/2),cvPoint(imageMD.XRes(),imageMD.YRes()/2),CV_RGB(255,255,255),1,8,0);
 	memcpy(camera->imageData,imageMD.RGB24Data(),camera->imageSize);
 	cvCvtColor(camera, camera, CV_BGR2RGB);
-	//cvShowImage("KinectImage", camera);
+	cvShowImage("KinectImage", camera);
 	cvCvtColor(user_img, user_img, CV_BGR2RGB);
 	cvShowImage("UserDetection",user_img);
 	cvShowImage("DepthImage",depth_img);
@@ -763,7 +763,7 @@ void CKinect::ByeByeSign(void){
 				}else if(first_hand_point.x - 20 > hand_point.x)
 					left_count++;
 			}
-			if((right_count > 5 && left_count>5) || right_count > 15 || left_count>15){
+			if((right_count > 5 && left_count>5) || right_count > 10 || left_count>10){
 				byebye_flag=true;
 				Talk.TalkLanguage(TALK_BYE);
 				face_num = BYEBYE_FACE;

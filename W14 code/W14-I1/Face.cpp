@@ -51,6 +51,10 @@ void CFace::CreateFase(int face_num){
 			
 			break;
 
+			//ƒoƒbƒN
+		case BACK_FACE:
+			face_img = cvLoadImage("./face_img/back.jpg",CV_LOAD_IMAGE_COLOR);
+
 		default:
 			break;
 		}
