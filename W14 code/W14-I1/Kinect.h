@@ -11,15 +11,12 @@
 
 #include <stdio.h>
 
-#define CV_MAX_THREADS 1
-#define  CV_SQR(a) ((a) * (a))
-
 #define TEMPLATESIZE_X	60
 #define TEMPLATESIZE_Y	120
 #define DEPTH_IMG_RANGE 500   //[mm]
 #define MATTING_X_RANGE 200 //pixel
 #define MATTING_Y_RANGE 100 //pixel
-#define USER_DISSIMILARITY 3500 //相違度
+#define USER_DISSIMILARITY 15000 //相違度
 #define USER_PIXEL_RANGE 30000 //pixel
 //テンプレート画像PATH
 #define FRONT_TEMPLATE_PATH "./usertemplate/template1.jpg"	
@@ -31,12 +28,12 @@
 #define D_UNDER 3
 #define D_LEFT 4
 //ユーザがロストする時の閾値
-#define MAX_LOST_COUNT 15
+#define MAX_LOST_COUNT 20
 #define MAX_USER_NUM 16					//15人まで登録可能(配列のため+1で設定)
 //ZNCCマッチング閾値
 #define TEMPLATE_SIMILARITY 0.35
 
-#define ROLL_PIXEL_THRESHOLD 60		//横回転の閾値 Robot.hに合わせる
+#define ROLL_PIXEL_THRESHOLD 80		//横回転の閾値 Robot.hに合わせる
 
 #define MAX_NULL_POINT_NUM	1800			//テンプレート更新判定  7200/4
 

@@ -166,7 +166,7 @@ void CKinect::UserDetection(void)
 //ユーザ登録
 void CKinect::UserSignin(void){
 	if(sceneMD(imageMD.XRes()/2,imageMD.YRes()/2)!=0){		//中心にユーザがいるとき
-		
+
 		user_count ++;
 		init_user_count = 0;	
 	}else{
@@ -182,7 +182,7 @@ void CKinect::UserSignin(void){
 	if(user_count >15){		//中心にユーザがいた時
 		if(first_sign_in_flag == false){
 			first_sign_in_flag = true;
-			
+
 			Talk.TalkLanguage(TALK_HELLO);//こんにちは
 			face_num = HELLO_FACE;
 		}
@@ -203,9 +203,9 @@ void CKinect::UserSignin(void){
 					depthMD(i,j) > depthMD(imageMD.XRes()/2,imageMD.YRes()/2) - GESTURE_DEPTH_MAX_LIMIT &&   
 					imageMD.YRes()/2 +imageMD.YRes()/4 > j && sceneMD(i,j)==user_number)
 				{
-						point_x_sum+= i ;
-						point_y_sum+= j ;
-						point_num++;
+					point_x_sum+= i ;
+					point_y_sum+= j ;
+					point_num++;
 				}else
 				{
 					(gesture_img->imageData)[gesture_img->widthStep * j + i * 3 ] = 0;
@@ -312,21 +312,21 @@ void CKinect::UserAuthentication(){
 			/*int depth_sum=0;
 			int depth_num=0;
 			for(int j=user.upper_end ; j<user.lower_end ; ++j){
-				for(int i=user.left_end ; i<user.right_end ; ++i){
-					if((depth_img->imageData)[depth_img->widthStep * j + i * 3 ] == 0
-						&& (depth_img->imageData)[depth_img->widthStep * j + i * 3 +1] == 0
-						&& (depth_img->imageData)[depth_img->widthStep * j + i * 3 +2] == 0 ){
-							;
-					}else{
-						depth_sum+=depthMD(i,j);
-						depth_num++;
-					}
-				}
+			for(int i=user.left_end ; i<user.right_end ; ++i){
+			if((depth_img->imageData)[depth_img->widthStep * j + i * 3 ] == 0
+			&& (depth_img->imageData)[depth_img->widthStep * j + i * 3 +1] == 0
+			&& (depth_img->imageData)[depth_img->widthStep * j + i * 3 +2] == 0 ){
+			;
+			}else{
+			depth_sum+=depthMD(i,j);
+			depth_num++;
+			}
+			}
 			}
 			if(depth_num==0){
-				user.center_depth = 0;
+			user.center_depth = 0;
 			}else if(user.center_depth - DEPTH_IMG_RANGE < depth_sum/depth_num && depth_sum/depth_num < user.center_depth + DEPTH_IMG_RANGE){
-				user.center_depth = depth_sum/depth_num;
+			user.center_depth = depth_sum/depth_num;
 			}*/
 
 			//テンプレート画像更新判定
@@ -337,7 +337,7 @@ void CKinect::UserAuthentication(){
 			for(int i=0; i<update_temp_img->width ; i++){
 				for(int j=0 ; j<update_temp_img->height ; j++){
 					if(	depthMD(user.center_x - TEMPLATESIZE_X / 2 + i , user.center_y - TEMPLATESIZE_Y / 2 + j) > user.center_depth +  DEPTH_IMG_RANGE 
-						   || depthMD(user.center_x - TEMPLATESIZE_X / 2 + i , user.center_y - TEMPLATESIZE_Y / 2 +j) < 300){
+						|| depthMD(user.center_x - TEMPLATESIZE_X / 2 + i , user.center_y - TEMPLATESIZE_Y / 2 +j) < 300){
 							null_point_num++;
 					}
 				}
@@ -402,44 +402,44 @@ void CKinect::MakeDepthImage(void){
 /*
 //本人かどうかのデータ収集
 void CKinect::DataCollection(void){
-	temp_user_flag=false;
-	IplImage *dst_img = 0;
-	double  min_val =0;		// 相違度が小さい結果のポインタを入れる
-	CvPoint min_loc ;		// 相違度が小さいの結果の座標を入れる
-	//マッチング画像をROIで切り取り
-	int roi_x = user.center_x - MATTING_X_RANGE;
-	if(roi_x<0)roi_x=0;
-	int roi_y = user.center_y - MATTING_Y_RANGE;
-	if(roi_y<0)roi_y=0;
-	int roi_range_x = MATTING_X_RANGE*2;
-	if( roi_range_x + roi_x >= depth_img->width)roi_range_x = depth_img->width - roi_x;
-	int roi_range_y = MATTING_Y_RANGE*2;
-	if( roi_range_y + roi_y >= depth_img->height)roi_range_y = depth_img->width - roi_y;
-	cvSetImageROI(depth_img , cvRect(roi_x, roi_y, MATTING_X_RANGE*2 , MATTING_Y_RANGE*2));
-	//テンプレートマッチング
-	dst_img = cvCreateImage (cvSize(depth_img->roi->width - temp_img->width + 1, depth_img->roi->height - temp_img->height + 1), IPL_DEPTH_32F, 1);
-	cvMatchTemplate (depth_img, temp_img, dst_img, CV_TM_SQDIFF);					//SAD
-	cvMinMaxLoc(dst_img, &min_val, NULL , &min_loc, NULL, NULL);					//マッチングの結果
-	cvResetImageROI(depth_img);														//ROI解放
-	double  m_dissimilarity =	min_val/(temp_img->width*temp_img->height);			//面積で割る
-	cout << "m_dissimilarity" <<m_dissimilarity<<endl;
-	if(m_dissimilarity < USER_DISSIMILARITY){
-		temp_user_flag = true;
-		cvSetImageROI(depth_img , cvRect(min_loc.x + roi_x, min_loc.y + roi_y, TEMPLATESIZE_X , TEMPLATESIZE_Y));
-		cvCopy(depth_img,update_temp_img);
-		UserHightData(min_loc.x+TEMPLATESIZE_X/2+roi_x , min_loc.y+roi_y+TEMPLATESIZE_Y/2);
-		cvResetImageROI(depth_img);	
-	}
-	cvShowImage("Template_img",temp_img);
-	cvReleaseImage(&dst_img);
+temp_user_flag=false;
+IplImage *dst_img = 0;
+double  min_val =0;		// 相違度が小さい結果のポインタを入れる
+CvPoint min_loc ;		// 相違度が小さいの結果の座標を入れる
+//マッチング画像をROIで切り取り
+int roi_x = user.center_x - MATTING_X_RANGE;
+if(roi_x<0)roi_x=0;
+int roi_y = user.center_y - MATTING_Y_RANGE;
+if(roi_y<0)roi_y=0;
+int roi_range_x = MATTING_X_RANGE*2;
+if( roi_range_x + roi_x >= depth_img->width)roi_range_x = depth_img->width - roi_x;
+int roi_range_y = MATTING_Y_RANGE*2;
+if( roi_range_y + roi_y >= depth_img->height)roi_range_y = depth_img->width - roi_y;
+cvSetImageROI(depth_img , cvRect(roi_x, roi_y, MATTING_X_RANGE*2 , MATTING_Y_RANGE*2));
+//テンプレートマッチング
+dst_img = cvCreateImage (cvSize(depth_img->roi->width - temp_img->width + 1, depth_img->roi->height - temp_img->height + 1), IPL_DEPTH_32F, 1);
+cvMatchTemplate (depth_img, temp_img, dst_img, CV_TM_SQDIFF);					//SAD
+cvMinMaxLoc(dst_img, &min_val, NULL , &min_loc, NULL, NULL);					//マッチングの結果
+cvResetImageROI(depth_img);														//ROI解放
+double  m_dissimilarity =	min_val/(temp_img->width*temp_img->height);			//面積で割る
+cout << "m_dissimilarity" <<m_dissimilarity<<endl;
+if(m_dissimilarity < USER_DISSIMILARITY){
+temp_user_flag = true;
+cvSetImageROI(depth_img , cvRect(min_loc.x + roi_x, min_loc.y + roi_y, TEMPLATESIZE_X , TEMPLATESIZE_Y));
+cvCopy(depth_img,update_temp_img);
+UserHightData(min_loc.x+TEMPLATESIZE_X/2+roi_x , min_loc.y+roi_y+TEMPLATESIZE_Y/2);
+cvResetImageROI(depth_img);	
+}
+cvShowImage("Template_img",temp_img);
+cvReleaseImage(&dst_img);
 
-	//現在のテンプレートマッチングの範囲
-	cvRectangle(depth_img,cvPoint(roi_x,roi_y),cvPoint(roi_x+MATTING_X_RANGE*2,roi_y+MATTING_Y_RANGE*2),CV_RGB(0,255,255),5,8,0);
+//現在のテンプレートマッチングの範囲
+cvRectangle(depth_img,cvPoint(roi_x,roi_y),cvPoint(roi_x+MATTING_X_RANGE*2,roi_y+MATTING_Y_RANGE*2),CV_RGB(0,255,255),5,8,0);
 
-	//カルマンフィルタでの範囲
-	double kalman_pixel_x = camera_prediction_pos_x / (0.001736 * camera_prediction_pos_d) + 320;
-	double kalman_pixel_rane_diff = (kalman_range_diff+200) / (0.001736 * camera_prediction_pos_d);
-	cvRectangle(depth_img,cvPoint(kalman_pixel_x - kalman_pixel_rane_diff,roi_y),cvPoint(kalman_pixel_x + kalman_pixel_rane_diff , roi_y+MATTING_Y_RANGE*2),CV_RGB(255,255,0),5,8,0);
+//カルマンフィルタでの範囲
+double kalman_pixel_x = camera_prediction_pos_x / (0.001736 * camera_prediction_pos_d) + 320;
+double kalman_pixel_rane_diff = (kalman_range_diff+200) / (0.001736 * camera_prediction_pos_d);
+cvRectangle(depth_img,cvPoint(kalman_pixel_x - kalman_pixel_rane_diff,roi_y),cvPoint(kalman_pixel_x + kalman_pixel_rane_diff , roi_y+MATTING_Y_RANGE*2),CV_RGB(255,255,0),5,8,0);
 
 }*/
 
@@ -457,7 +457,7 @@ void CKinect::ExpectBackTemplateMatting(void){
 
 	temp_user_flag=false;
 	IplImage *dst_img = 0;
-	double  min_val =0;		// 相違度が小さい結果のポインタを入れる
+	double  min_val = 255*255;		// 相違度が小さい結果のポインタを入れる
 	CvPoint min_loc ;		// 相違度が小さいの結果の座標を入れる
 	//マッチング画像をROIで切り取り
 	int roi_x = user.center_x - MATTING_X_RANGE;
@@ -467,35 +467,37 @@ void CKinect::ExpectBackTemplateMatting(void){
 	int roi_range_x = MATTING_X_RANGE*2;
 	if( roi_range_x + roi_x >= depth_img->width)roi_range_x = depth_img->width - roi_x;
 	int roi_range_y = MATTING_Y_RANGE*2;
-	if( roi_range_y + roi_y >= depth_img->height)roi_range_y = depth_img->width - roi_y;
-	cvSetImageROI(depth_img , cvRect(roi_x, roi_y, MATTING_X_RANGE*2 , MATTING_Y_RANGE*2));
+	if( roi_range_y + roi_y >= depth_img->height)roi_range_y = depth_img->height - roi_y;
+	cvSetImageROI(depth_img , cvRect(roi_x, roi_y, roi_range_x , roi_range_y));
 	//テンプレートマッチング
 	dst_img = cvCreateImage (cvSize(depth_img->roi->width - temp_img->width + 1, depth_img->roi->height - temp_img->height + 1), IPL_DEPTH_32F, 1);
 	cvMatchTemplate(depth_img, temp_img, dst_img, CV_TM_SQDIFF);					//SAD
 	/////////////////////////////////////////MinMaxLocの中身の変更//////////////////////////////////////////////////////////////////////
+	/*
 	for(int j = 0; j < dst_img->height ; j++){
 		for(int i = 0 ; i < dst_img->width ; i++){
-			if(depthMD(roi_x + i + TEMPLATESIZE_X / 2 , roi_y + j + TEMPLATESIZE_Y / 2) > human_depth + DEPTH_IMG_RANGE || depthMD(roi_x + i + TEMPLATESIZE_X / 2 , roi_y + j + TEMPLATESIZE_Y / 2) < 500){
-				(dst_img->imageData)[dst_img->widthStep * j + i * dst_img-> nChannels ] =  USER_DISSIMILARITY + 1 ;
+			if(i + TEMPLATESIZE_X / 2 < dst_img -> width &&  j + TEMPLATESIZE_Y / 2 < dst_img->height){
+				if(depthMD(roi_x + i + TEMPLATESIZE_X / 2 , roi_y + j + TEMPLATESIZE_Y / 2) > human_depth + DEPTH_IMG_RANGE || depthMD(roi_x + i + TEMPLATESIZE_X / 2 , roi_y + j + TEMPLATESIZE_Y / 2) < 500){
+					(dst_img->imageData)[dst_img->widthStep * j + i * dst_img-> nChannels ] =  USER_DISSIMILARITY + 1 ;
+				}
 			}
 		}
 	}
-		
+	*/
 	cvMinMaxLoc(dst_img, &min_val, NULL , &min_loc, NULL, NULL);					//マッチングの結果
 	cvResetImageROI(depth_img);														//ROI解放
-	double  m_dissimilarity =	min_val/(temp_img->width*temp_img->height);			//面積で割る
+	double  m_dissimilarity =	min_val / (temp_img->width*temp_img->height);			//面積で割る
+	cout << "相違度: " << m_dissimilarity << endl;
 	if(m_dissimilarity < USER_DISSIMILARITY){
 		temp_user_flag = true;
-		//cvSetImageROI(depth_img , cvRect(min_loc.x + roi_x, min_loc.y + roi_y, TEMPLATESIZE_X , TEMPLATESIZE_Y));
-		//cvCopy(depth_img,update_temp_img);
 		UserHightData(min_loc.x+TEMPLATESIZE_X/2+roi_x , min_loc.y+roi_y+TEMPLATESIZE_Y/2);
-		//cvResetImageROI(depth_img);	
 	}
 	cvShowImage("Template_img",temp_img);
 	cvReleaseImage(&dst_img);
 
 	//現在のテンプレートマッチングの範囲
-	cvRectangle(depth_img,cvPoint(roi_x,roi_y),cvPoint(roi_x+MATTING_X_RANGE*2,roi_y+MATTING_Y_RANGE*2),CV_RGB(0,255,255),5,8,0);
+	cvCircle(user_img,cvPoint(min_loc.x+TEMPLATESIZE_X/2+roi_x , min_loc.y+TEMPLATESIZE_Y/2+roi_y),20,CV_RGB(0,0,255),-1,8,0);
+	cvRectangle(user_img,cvPoint(roi_x,roi_y),cvPoint(roi_x+roi_range_x , roi_y+roi_range_y),CV_RGB(0,255,255),5,8,0);
 }
 //最初の輪郭を見つける「→」に
 CvPoint CKinect::FindContour(int point_x,int point_y){
